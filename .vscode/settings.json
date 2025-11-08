@@ -1,0 +1,7 @@
+{
+  "editor.fontSize": 28,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "workbench.activityBar.iconClickBehavior": "toggle",
+  "editor.language.colorizedBracketPairs": []
+}

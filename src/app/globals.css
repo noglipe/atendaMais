@@ -3,6 +3,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* =================================================================
+   TEMA CLARO (LIGHT) - SEU ORIGINAL
+   ================================================================= */
 :root {
   --primary: oklch(0.208 0.042 265.755);
   --primary-hover: #1d4ed8;
@@ -40,19 +43,70 @@
   --sidebar-ring: oklch(0.704 0.04 256.788);
 }
 
-[data-theme="dark"] {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
-  --secondary: #1f2937;
-  --secondary-hover: #374151;
-  --accent: #34d399;
-  --muted: #6b7280;
-  --border: #374151;
-  --card: #1a1a1a;
-  --card-foreground: #f9fafb;
+/* =================================================================
+   TEMA ESCURO (DARK) - CRM WHATSAPP
+   ================================================================= */
+.dark {
+  /* --- Base (Fundo e Texto) --- */
+  /* Fundo: Um cinza-azulado bem escuro (mais suave que preto) */
+  --background: oklch(0.15 0.015 255);
+  /* Texto: Um branco levemente acinzentado (menos "brilhante") */
+  --foreground: oklch(0.95 0.005 255);
+
+  /* --- Cards e Popovers (Superfícies) --- */
+  /* Cards: Um pouco mais claros que o fundo para criar profundidade */
+  --card: oklch(0.20 0.02 255);
+  --card-foreground: oklch(0.95 0.005 255);
+  --popover: oklch(0.22 0.022 255);
+  --popover-foreground: oklch(0.95 0.005 255);
+
+  /* --- Primário (Botões de Ação) --- */
+  /* A "cor leve" - um verde moderno inspirado no WhatsApp */
+  --primary: oklch(0.62 0.16 148.72);
+  /* Texto do botão primário (escuro para contrastar com o verde) */
+  --primary-foreground: oklch(0.1 0.01 150);
+
+  /* --- Secundário (Botões e elementos neutros) --- */
+  --secondary: oklch(0.25 0.02 255);
+  --secondary-foreground: oklch(0.8 0.01 255);
+
+  /* --- Muted (Textos e fundos discretos) --- */
+  --muted: oklch(0.25 0.02 255);
+  --muted-foreground: oklch(0.6 0.015 255);
+  
+  /* --- Accent (Links ou destaques secundários) --- */
+  /* Usamos um azul vibrante para diferenciar do verde primário */
+  --accent: oklch(0.65 0.15 250);
+  --accent-foreground: oklch(0.98 0.0 0);
+
+  /* --- Outros --- */
+  --destructive: oklch(0.6 0.22 27); /* Vermelho para alertas */
+  --border: oklch(0.25 0.02 255);    /* Bordas sutis */
+  --input: oklch(0.25 0.02 255);     /* Fundo de inputs */
+  --ring: oklch(0.62 0.16 148.72);   /* Anel de foco (usa a cor primária) */
+
+  /* --- Cores dos Gráficos (Ajustadas para o tema dark) --- */
+  --chart-1: oklch(0.62 0.16 148.72); /* Verde (Primário) */
+  --chart-2: oklch(0.65 0.15 250);    /* Azul (Accent) */
+  --chart-3: oklch(0.7 0.2 300);     /* Roxo/Magenta */
+  --chart-4: oklch(0.75 0.2 50);     /* Amarelo/Laranja */
+  --chart-5: oklch(0.7 0.15 190);    /* Ciano */
+  
+  /* --- Sidebar (Seguindo o tema do Card) --- */
+  --sidebar: oklch(0.20 0.02 255);
+  --sidebar-foreground: oklch(0.95 0.005 255);
+  --sidebar-primary: oklch(0.62 0.16 148.72);          /* Item ativo (Verde) */
+  --sidebar-primary-foreground: oklch(0.1 0.01 150); /* Texto do item ativo */
+  --sidebar-accent: oklch(0.25 0.02 255);             /* Hover (fundo) */
+  --sidebar-accent-foreground: oklch(0.95 0.005 255); /* Hover (texto) */
+  --sidebar-border: oklch(0.25 0.02 255);
+  --sidebar-ring: oklch(0.62 0.16 148.72);
 }
+
+
+/* =================================================================
+   CONFIGURAÇÕES BASE
+   ================================================================= */
 
 body {
   transition: background 0.2s ease, color 0.2s ease;
@@ -94,40 +148,6 @@ body {
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-}
-
-.dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
 @layer base {
