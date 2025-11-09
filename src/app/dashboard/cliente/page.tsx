@@ -2,20 +2,20 @@
 
 import { usePerfil } from "@/context/ClientProvider";
 import { supabase } from "@/lib/supabase/supabase";
-import { Cliente, TiposContato } from "@/types/next";
+import { ClienteType, ContatoType, TiposContatoType } from "@/types/next";
+
 import { useState, useEffect, useMemo, useCallback } from "react";
 
-const CONTACT_OPTIONS: TiposContato[] = ["Email", "Telefone", "Instagran"];
+const CONTACT_OPTIONS: TiposContatoType[] = ["Email", "Telefone", "Instagran"];
 
 export default function Page() {
   const { estabelecimento } = usePerfil();
-  const [clients, setClients] = useState<Cliente[]>([]);
+  const [clients, setClients] = useState<ClienteType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Estados para filtros
   const [searchTerm, setSearchTerm] = useState("");
-  const [contactFilter, setContactFilter] = useState<TiposContato | "">("");
   const [estabelecimentoId, setEstabelecimentoId] = useState<string>("");
 
   // Função de busca de clientes
@@ -34,7 +34,7 @@ export default function Page() {
         setError(`Erro ao carregar clientes: ${error.message}`);
         setClients([]);
       } else {
-        setClients(data as Cliente[]);
+        setClients(data as ClienteType[]);
         console.log(data);
       }
     } catch {
@@ -68,27 +68,19 @@ export default function Page() {
       currentClients = currentClients.filter(
         (client) =>
           client.nome.toLowerCase().includes(lowerCaseSearch) ||
-          (client.cpf && client.cpf.includes(lowerCaseSearch))
+          (client.cpf && client.cpf.includes(lowerCaseSearch)) ||
+          client.whatsapp?.includes(lowerCaseSearch) ||
+          client.outros_contatos?.email?.includes(lowerCaseSearch) ||
+          client.outros_contatos?.telefone?.includes(lowerCaseSearch) ||
+          client.outros_contatos?.instagram?.includes(lowerCaseSearch)
       );
     }
 
-    if (contactFilter) {
-      const lowerCaseContact = contactFilter.toLowerCase();
-      currentClients = currentClients.filter((client) => {
-        if (lowerCaseContact === "telefone" && client.whatsapp) return true;
-        if (!client.outros_contatos) return false;
-        return (
-          client.outros_contatos[lowerCaseContact] &&
-          client.outros_contatos[lowerCaseContact].trim() !== ""
-        );
-      });
-    }
-
     return currentClients.sort((a, b) => a.nome.localeCompare(b.nome));
-  }, [clients, searchTerm, contactFilter]);
+  }, [clients, searchTerm]);
 
   // Componente de cartão de cliente
-  const ClientCard: React.FC<{ client: Cliente }> = ({ client }) => (
+  const ClientCard: React.FC<{ client: ClienteType }> = ({ client }) => (
     <div className="bg-white p-4 shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transition duration-300">
       <div className="flex justify-between items-start mb-2">
         <h2 className="text-lg font-bold text-gray-800 break-words max-w-[80%]">
@@ -142,16 +134,29 @@ export default function Page() {
               Outros Contatos
             </p>
             <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
-              {Object.entries(client.outros_contatos).map(
-                ([key, value]) =>
-                  value && (
-                    <span
-                      key={key}
-                      className="bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium"
-                    >
-                      {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
-                    </span>
-                  )
+              {client.outros_contatos && (
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <p className="text-xs font-semibold text-gray-500 uppercase mb-1">
+                    Outros Contatos
+                  </p>
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
+                    {client.outros_contatos.email && (
+                      <span className="bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">
+                        Email: {client.outros_contatos.email}
+                      </span>
+                    )}
+                    {client.outros_contatos.telefone && (
+                      <span className="bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">
+                        Telefone: {client.outros_contatos.telefone}
+                      </span>
+                    )}
+                    {client.outros_contatos.instagram && (
+                      <span className="bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">
+                        Instagram: {client.outros_contatos.instagram}
+                      </span>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
           </div>
@@ -192,21 +197,6 @@ export default function Page() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition duration-150"
         />
-
-        <select
-          value={contactFilter}
-          onChange={(e) =>
-            setContactFilter(e.target.value as TiposContato | "")
-          }
-          className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 text-gray-700 bg-white cursor-pointer"
-        >
-          <option value="">Todos os Contatos</option>
-          {CONTACT_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              Com {option}
-            </option>
-          ))}
-        </select>
       </div>
 
       <p className="text-sm text-gray-600 mb-4">
