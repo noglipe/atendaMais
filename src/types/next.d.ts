@@ -1,4 +1,4 @@
-type TiposContatoType = "Email" | "Telefone" | "Instagran";
+type TiposContatoType = "Email" | "Telefone" | "Instagram";
 
 interface ContatoType {
   email?: string;
@@ -48,4 +48,13 @@ export interface ClienteType {
   created_at?: string;
   updated_at?: string;
   nascimento?: string;
+}
+
+interface ServicosType {
+  id: string;
+  estabelecimento_id: string;
+  nome: string;
+  tempo_duracao: number; // em minutos
+  preco: number; // float/decimal
+  ativo: boolean; // boolean
 }

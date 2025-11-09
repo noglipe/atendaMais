@@ -1,75 +1,67 @@
 "use client";
 
 import { supabase } from "@/lib/supabase/supabase";
-import { Cliente, Contato, TiposContato } from "@/types/next";
-import { useParams } from "next/navigation";
+import { ClienteType, ContatoType, TiposContatoType } from "@/types/next";
+import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import Loading from "../../components/Loading";
+import {
+  formataCelular,
+  formataCPF,
+  retornaNumeros,
+} from "@/utils/nogDevFormatar";
+import { ArrowBigLeft, Plus, Trash, Trash2 } from "lucide-react";
+import { formataContatoPorTipo, parseDbContacts } from "../funcoes/funcoes";
 
-const CONTACT_OPTIONS: TiposContato[] = ["Email", "Telefone", "Instagran"];
-
-// Função auxiliar para converter o objeto de contatos do DB para o estado de array
-const parseDbContacts = (
-  dbContacts: Record<string, any> | undefined
-): Contato[] => {
-  if (!dbContacts || Object.keys(dbContacts).length === 0) {
-    return [];
-  }
-
-  return Object.entries(dbContacts)
-    .map(([key, value]) => ({
-      // Converte a chave (minúscula) de volta para o formato TiposContato (Capitalizado)
-      key: (key.charAt(0).toUpperCase() + key.slice(1)) as TiposContato,
-      value: value || "",
-    }))
-    .filter((c) => c.value); // Filtra valores vazios
-};
+const CONTACT_OPTIONS: TiposContatoType[] = ["Email", "Telefone", "Instagram"];
+const CLASS_NAME_LABEL =
+  "block text-sm font-medium text-secondary-foreground mb-1";
+const CLASS_NAME_INPUT =
+  "w-full p-3 border border-border rounded-lg focus:border-accent focus:ring-1 focus:ring-accent transition duration-150 text-primary";
 
 export default function EditClientPage() {
-  // Estados do Formulário
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [nascimento, setNascimento] = useState("");
   const [notas, setNotas] = useState("");
-  const [otherContacts, setOtherContacts] = useState<Contato[]>([]);
+  const [otherContacts, setOtherContacts] = useState<any[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState("");
 
+  const rota = useRouter();
   const params = useParams();
   const { id } = params;
 
+  const hasPreviousPage = window.history.length > 2;
+
   useEffect(() => {
-    if (!loading) return;
+    if (!id || typeof id !== "string") return;
 
     const fetchClientData = async () => {
       setLoading(true);
       setMessage("");
       try {
-        // Simula a busca: .from("clients").select("*").eq("id", clientId)
         const { data, error } = await supabase
           .from("clients")
           .select("*")
           .eq("id", id)
           .single();
 
-        console.log(data);
-
         if (error) {
           setMessage(`Erro ao carregar dados do cliente: ${error.message}`);
           return;
         }
 
-        const clientData = data as Cliente;
+        const clientData = data as ClienteType;
 
         if (clientData) {
-          // Preenche os estados com os dados do cliente
           setNome(clientData.nome || "");
           setCpf(clientData.cpf || "");
           setWhatsapp(clientData.whatsapp || "");
-          // Certifique-se de que a data está no formato YYYY-MM-DD para o input type="date"
           setNascimento(
             clientData.nascimento ? clientData.nascimento.split("T")[0] : ""
           );
@@ -86,13 +78,9 @@ export default function EditClientPage() {
     };
 
     fetchClientData();
-  }, [loading]);
+  }, [id]);
 
-  // ------------------------------------------------------------------
-  // FUNÇÕES DE GERENCIAMENTO DE CONTATOS (Reutilizadas do CreateClientPage)
-  // ------------------------------------------------------------------
   const addContact = () => {
-    // Adiciona um novo contato com a chave inicial "Email"
     setOtherContacts([...otherContacts, { key: "Email", value: "" }]);
   };
 
@@ -107,7 +95,7 @@ export default function EditClientPage() {
   ) => {
     const newContacts = otherContacts.map((contact, i) => {
       if (i === index) {
-        const valueToSet = field === "key" ? (data as TiposContato) : data;
+        const valueToSet = field === "key" ? (data as TiposContatoType) : data;
         return { ...contact, [field]: valueToSet };
       }
       return contact;
@@ -115,42 +103,33 @@ export default function EditClientPage() {
     setOtherContacts(newContacts);
   };
 
-  // ------------------------------------------------------------------
-  // FUNÇÃO: Submissão (UPDATE)
-  // ------------------------------------------------------------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     setMessage("");
 
-    // 1. Converte a lista de contatos para o formato de objeto (Record<string, any>)
     const parsedOtherContacts = otherContacts.reduce((acc, contact) => {
       if (
         contact.key.trim() &&
-        CONTACT_OPTIONS.includes(contact.key as TiposContato) &&
+        CONTACT_OPTIONS.includes(contact.key as TiposContatoType) &&
         contact.value.trim() !== ""
       ) {
-        // Normaliza a chave para minúsculas
         acc[contact.key.trim().toLowerCase()] = contact.value.trim();
       }
       return acc;
     }, {} as Record<string, any>);
 
-    // Dados para atualização
     const clientUpdates = {
       nome,
-      cpf: cpf || null,
-      whatsapp: whatsapp || null,
+      cpf: retornaNumeros(cpf) || null,
+      whatsapp: retornaNumeros(whatsapp) || null,
       nascimento: nascimento || null,
       outros_contatos: parsedOtherContacts,
       notas: notas || null,
-      // Em uma implementação real com Supabase, você provavelmente não precisaria disso
-      // mas é bom ter uma marca de atualização
       updated_at: new Date().toISOString(),
     };
 
     try {
-      // Simula a atualização no banco de dados
       const { error } = await supabase
         .from("clients")
         .update(clientUpdates)
@@ -162,36 +141,18 @@ export default function EditClientPage() {
       } else {
         toast.success("Cliente atualizado com sucesso!");
         setMessage("Cliente atualizado com sucesso!");
-        // Aqui você pode adicionar um redirecionamento de volta para a lista de clientes
+        rota.back();
       }
     } catch (err: any) {
-      setMessage(
-        `Erro inesperado: ${
-          err.message || "Verifique a conexão e tente novamente."
-        }`
-      );
-      toast.error(
-        `Erro inesperado: ${
-          err.message || "Verifique a conexão e tente novamente."
-        }`
-      );
+      const msg = err.message || "Verifique a conexão e tente novamente.";
+      setMessage(`Erro inesperado: ${msg}`);
+      toast.error(`Erro inesperado: ${msg}`);
     } finally {
       setIsSaving(false);
     }
   };
 
-  // ------------------------------------------------------------------
-  // RENDERIZAÇÃO
-  // ------------------------------------------------------------------
-  if (loading) {
-    return (
-      <div className="p-8 text-center">
-        Carregando dados do estabelecimento...
-      </div>
-    );
-  }
-
-  if (!id) {
+  if (!id || typeof id !== "string") {
     return (
       <div className="p-8 text-center text-red-600">
         Erro: ID do cliente para edição não fornecido.
@@ -200,73 +161,72 @@ export default function EditClientPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-        <p className="ml-4 text-gray-600">Carregando dados do cliente...</p>
-      </div>
-    );
+    <Loading />;
   }
 
   return (
-    <div className="min-h-screen flex items-start justify-center pt-10 bg-gray-50">
-      <div className="w-full max-w-lg p-6 md:p-8 bg-white shadow-2xl rounded-xl">
-        <h1 className="text-3xl font-extrabold mb-8 text-gray-800 text-center border-b pb-4">
+    <div className="min-h-screen flex items-start justify-center pt-10 ">
+      <div className="w-full max-w-xl p-4 md:p-8 shadow-2xl rounded-xl bg-background">
+        {hasPreviousPage && (
+          <button
+            onClick={() => rota.back()}
+            className="text-primary flex flex-row gap-1 p-2 cursor-pointer"
+          >
+            <ArrowBigLeft /> Voltar
+          </button>
+        )}
+        <h1 className="text-3xl font-extrabold mb-8 text-secondary-foreground text-center border-b pb-4">
           Editar Cliente:{" "}
-          <span className="text-blue-600">{nome || "Carregando..."}</span>
+          <span className="text-primary">{nome || "Carregando..."}</span>
         </h1>
-
-        {/* Formulário Principal */}
+        {message && (
+          <p
+            className={`mt-4 p-3 rounded-lg text-center font-medium ${
+              message.startsWith("Erro")
+                ? "bg-red-100 text-red-700"
+                : "bg-green-100 text-green-700"
+            }`}
+          >
+            {message}
+          </p>
+        )}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Campo Nome (Obrigatório) */}
           <div className="relative">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nome Completo *
-            </label>
+            <label className={CLASS_NAME_LABEL}>Nome Completo *</label>
             <input
               type="text"
               placeholder="Nome Completo *"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition duration-150"
-              required
+              className={CLASS_NAME_INPUT}
             />
           </div>
 
-          {/* CPF e WhatsApp */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                CPF (Opcional)
-              </label>
+            <div>
+              <label className={CLASS_NAME_LABEL}>CPF (Opcional)</label>
               <input
                 type="text"
                 placeholder="CPF"
-                value={cpf}
+                value={formataCPF(cpf)}
                 onChange={(e) => setCpf(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition duration-150"
+                className={CLASS_NAME_INPUT}
               />
             </div>
-            <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                WhatsApp (Opcional)
-              </label>
+            <div>
+              <label className={CLASS_NAME_LABEL}>WhatsApp (Opcional)</label>
               <input
                 type="text"
                 placeholder="WhatsApp"
-                value={whatsapp}
+                value={formataCelular(whatsapp)}
                 onChange={(e) => setWhatsapp(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition duration-150"
+                className={CLASS_NAME_INPUT}
               />
             </div>
           </div>
 
-          {/* Data de Nascimento */}
-          <div className="relative">
-            <label
-              htmlFor="nascimento"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+          <div>
+            <label htmlFor="nascimento" className={CLASS_NAME_LABEL}>
               Data de Nascimento (Opcional)
             </label>
             <input
@@ -274,15 +234,12 @@ export default function EditClientPage() {
               type="date"
               value={nascimento}
               onChange={(e) => setNascimento(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition duration-150 text-gray-600"
+              className={`${CLASS_NAME_INPUT} [&::-webkit-calendar-picker-indicator]:invert-[0.5]`}
             />
           </div>
 
-          {/* ------------------------------------------------------------------ */}
-          {/* Gerenciamento de Outros Contatos */}
-          {/* ------------------------------------------------------------------ */}
-          <div className="pt-2 border-t border-gray-100">
-            <label className="block text-lg font-semibold text-gray-700 mb-3 mt-2">
+          <div className="pt-2 border-t border-accent-foreground">
+            <label className="block text-lg font-semibold text-secondary-foreground mb-3 mt-2">
               Outros Contatos
             </label>
 
@@ -290,15 +247,14 @@ export default function EditClientPage() {
               {otherContacts.map((contact, index) => (
                 <div
                   key={index}
-                  className="flex flex-col md:flex-row gap-2 items-center bg-gray-50 p-3 rounded-lg border border-gray-200 shadow-sm"
+                  className="flex flex-col md:flex-row gap-2 items-center bg-background/10 p-3 rounded-lg border border-border/5 shadow-sm"
                 >
-                  {/* Tipo/Chave do Contato (SELETOR) */}
                   <select
                     value={contact.key}
                     onChange={(e) =>
                       updateContact(index, "key", e.target.value)
                     }
-                    className="w-full md:w-1/3 p-2 border border-gray-300 rounded-lg focus:border-blue-500 text-sm bg-white cursor-pointer"
+                    className="w-full md:w-1/3 p-2 border rounded-lg focus:border-accent text-sm cursor-pointer text-secondary-foreground"
                     required
                   >
                     <option value="" disabled>
@@ -311,110 +267,67 @@ export default function EditClientPage() {
                     ))}
                   </select>
 
-                  {/* Valor do Contato */}
                   <input
                     type="text"
                     placeholder="Valor do Contato"
-                    value={contact.value}
+                    value={formataContatoPorTipo(contact.key, contact.value)}
                     onChange={(e) =>
-                      updateContact(index, "value", e.target.value)
+                      updateContact(
+                        index,
+                        "value",
+                        formataContatoPorTipo(contact.key, e.target.value)
+                      )
                     }
-                    className="w-full md:w-2/3 p-2 border border-gray-300 rounded-lg focus:border-blue-500 text-sm"
+                    className={CLASS_NAME_INPUT}
                     required={contact.key !== null}
                   />
 
-                  {/* Botão Remover */}
                   <button
                     type="button"
                     onClick={() => removeContact(index)}
-                    className="flex-shrink-0 p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition"
+                    className="flex-shrink-0 p-4 bg-destructive/30 text-destructive rounded-sm hover:bg-destructive/10 transition cursor-pointer"
                     aria-label="Remover Contato"
                   >
-                    {/* Inline SVG for Minus Icon */}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
+                    <Trash />
                   </button>
                 </div>
               ))}
             </div>
 
-            {/* Botão Adicionar */}
             <button
               type="button"
               onClick={addContact}
-              className="mt-3 flex items-center justify-center space-x-2 w-full px-4 py-2 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50 transition duration-150"
+              className="mt-3 flex items-center justify-center space-x-2 w-full px-4 py-2 border border-border text-accent rounded-lg hover:bg-accent/10 transition duration-150 cursor-pointer"
             >
-              {/* Inline SVG for Plus Icon */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
+              <Plus />
               <span>Adicionar Contato</span>
             </button>
           </div>
 
-          {/* Campo Notas */}
           <div className="relative pt-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Notas (Opcional)
-            </label>
+            <label className={CLASS_NAME_LABEL}>Notas (Opcional)</label>
             <textarea
               placeholder="Notas e observações importantes sobre o cliente"
               value={notas}
               onChange={(e) => setNotas(e.target.value)}
               rows={4}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition duration-150 resize-y"
+              className={CLASS_NAME_INPUT}
             />
           </div>
 
-          {/* Botão de Submissão */}
           <button
             type="submit"
             disabled={isSaving || nome.trim() === ""}
-            className={`w-full py-3 rounded-lg font-bold text-white transition duration-200 shadow-lg 
+            className={`w-full py-3 rounded-lg font-bold text-primary-foreground transition duration-200 shadow-lg cursor-pointer
                 ${
                   isSaving || nome.trim() === ""
-                    ? "bg-green-300 cursor-not-allowed"
-                    : "bg-green-600 hover:bg-green-700 hover:shadow-xl"
+                    ? "bg-primary/50 cursor-not-allowed"
+                    : "bg-primary hover:bg-primary/90 hover:shadow-xl"
                 }`}
           >
             {isSaving ? "Salvando..." : "Salvar Alterações"}
           </button>
         </form>
-
-        {/* Mensagem de Status */}
-        {message && (
-          <p
-            className={`mt-4 p-3 rounded-lg text-center font-medium ${
-              message.startsWith("Erro")
-                ? "bg-red-100 text-red-700"
-                : "bg-green-100 text-green-700"
-            }`}
-          >
-            {message}
-          </p>
-        )}
       </div>
     </div>
   );

@@ -53,9 +53,11 @@
   /* Texto: Um branco levemente acinzentado (menos "brilhante") */
   --foreground: oklch(0.95 0.005 255);
 
+  --gradient-color-light: oklch(27.544% 0.07926 252.619);
+
   /* --- Cards e Popovers (Superfícies) --- */
   /* Cards: Um pouco mais claros que o fundo para criar profundidade */
-  --card: oklch(0.20 0.02 255);
+  --card: oklch(0.2 0.02 255);
   --card-foreground: oklch(0.95 0.005 255);
   --popover: oklch(0.22 0.022 255);
   --popover-foreground: oklch(0.95 0.005 255);
@@ -73,43 +75,49 @@
   /* --- Muted (Textos e fundos discretos) --- */
   --muted: oklch(0.25 0.02 255);
   --muted-foreground: oklch(0.6 0.015 255);
-  
+
   /* --- Accent (Links ou destaques secundários) --- */
   /* Usamos um azul vibrante para diferenciar do verde primário */
   --accent: oklch(0.65 0.15 250);
-  --accent-foreground: oklch(0.98 0.0 0);
+  --accent-foreground: oklch(0.98 0 0);
 
   /* --- Outros --- */
   --destructive: oklch(0.6 0.22 27); /* Vermelho para alertas */
-  --border: oklch(0.25 0.02 255);    /* Bordas sutis */
-  --input: oklch(0.25 0.02 255);     /* Fundo de inputs */
-  --ring: oklch(0.62 0.16 148.72);   /* Anel de foco (usa a cor primária) */
+  --border: oklch(0.25 0.02 255); /* Bordas sutis */
+  --input: oklch(0.25 0.02 255); /* Fundo de inputs */
+  --ring: oklch(0.62 0.16 148.72); /* Anel de foco (usa a cor primária) */
 
   /* --- Cores dos Gráficos (Ajustadas para o tema dark) --- */
   --chart-1: oklch(0.62 0.16 148.72); /* Verde (Primário) */
-  --chart-2: oklch(0.65 0.15 250);    /* Azul (Accent) */
-  --chart-3: oklch(0.7 0.2 300);     /* Roxo/Magenta */
-  --chart-4: oklch(0.75 0.2 50);     /* Amarelo/Laranja */
-  --chart-5: oklch(0.7 0.15 190);    /* Ciano */
-  
+  --chart-2: oklch(0.65 0.15 250); /* Azul (Accent) */
+  --chart-3: oklch(0.7 0.2 300); /* Roxo/Magenta */
+  --chart-4: oklch(0.75 0.2 50); /* Amarelo/Laranja */
+  --chart-5: oklch(0.7 0.15 190); /* Ciano */
+
   /* --- Sidebar (Seguindo o tema do Card) --- */
-  --sidebar: oklch(0.20 0.02 255);
+  --sidebar: oklch(0.2 0.02 255);
   --sidebar-foreground: oklch(0.95 0.005 255);
-  --sidebar-primary: oklch(0.62 0.16 148.72);          /* Item ativo (Verde) */
+  --sidebar-primary: oklch(0.62 0.16 148.72); /* Item ativo (Verde) */
   --sidebar-primary-foreground: oklch(0.1 0.01 150); /* Texto do item ativo */
-  --sidebar-accent: oklch(0.25 0.02 255);             /* Hover (fundo) */
+  --sidebar-accent: oklch(0.25 0.02 255); /* Hover (fundo) */
   --sidebar-accent-foreground: oklch(0.95 0.005 255); /* Hover (texto) */
   --sidebar-border: oklch(0.25 0.02 255);
   --sidebar-ring: oklch(0.62 0.16 148.72);
 }
-
 
 /* =================================================================
    CONFIGURAÇÕES BASE
    ================================================================= */
 
 body {
-  transition: background 0.2s ease, color 0.2s ease;
+  /* Um gradiente linear que vai de uma cor à outra */
+  background: linear-gradient(
+    to bottom right,
+    /* ou to top left, 45deg, etc. */ var(--background),
+    var(--gradient-color-light)
+  );
+  min-height: 100vh; /* Garante que o gradiente cubra toda a altura da viewport */
+  margin: 0;
 }
 
 @theme inline {
