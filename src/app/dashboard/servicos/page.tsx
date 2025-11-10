@@ -27,8 +27,6 @@ export default function ServiceListPage() {
 
   const { perfil, estabelecimento, loading: loadingPerfil } = usePerfil();
 
-  console.log(perfil, estabelecimento);
-
   const fetchServices = useCallback(async (estabelecimentoId: string) => {
     setLoading(true);
     setError(null);
