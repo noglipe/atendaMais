@@ -5,6 +5,13 @@ import { supabase } from "@/lib/supabase/supabase";
 import { ServicosType } from "@/types/next";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useMemo, useCallback } from "react";
+import Loading from "../components/Loading";
+import {
+  NovoServicosForm,
+  ServicosFormButton,
+} from "../components/ServicosForm";
+import { EditServiceButton } from "../components/EditServiceButton";
+import { createPortal } from "react-dom";
 
 type ActiveFilterType = "all" | "active" | "inactive";
 
@@ -12,21 +19,20 @@ export default function ServiceListPage() {
   const [services, setServices] = useState<ServicosType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
   const rota = useRouter();
 
-  // Estados para Filtros
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeFilter, setActiveFilter] = useState<ActiveFilterType>("active"); // Padrão: Apenas serviços Ativos
+  const [activeFilter, setActiveFilter] = useState<ActiveFilterType>("all");
 
-  const { estabelecimento, loading: loadingPerfil } = usePerfil();
+  const { perfil, estabelecimento, loading: loadingPerfil } = usePerfil();
 
-  // Função para buscar serviços (executada apenas se o estabelecimento.id estiver disponível)
+  console.log(perfil, estabelecimento);
+
   const fetchServices = useCallback(async (estabelecimentoId: string) => {
     setLoading(true);
     setError(null);
     try {
-      // Nota: Na implementação real do Supabase, você usaria .eq('estabelecimento_id', estabelecimentoId)
-      // O mock simula essa filtragem.
       const { data, error } = await supabase.from("servicos").select("*");
 
       if (error) {
@@ -43,26 +49,21 @@ export default function ServiceListPage() {
     }
   }, []);
 
-  // Efeito para carregar os serviços quando o perfil estiver carregado
   useEffect(() => {
     if (!loadingPerfil && estabelecimento?.id) {
       fetchServices(estabelecimento.id);
     }
   }, [loadingPerfil, estabelecimento, fetchServices]);
 
-  // Lógica de Filtragem e Ordenação (usa useMemo para performance)
   const filteredServices = useMemo(() => {
     let currentServices = services;
 
-    // 1. FILTRO DE ATIVIDADE
     if (activeFilter === "active") {
       currentServices = currentServices.filter((s) => s.ativo === true);
     } else if (activeFilter === "inactive") {
       currentServices = currentServices.filter((s) => s.ativo === false);
     }
-    // "all" não filtra por atividade
 
-    // 2. FILTRO DE PESQUISA (Nome)
     if (searchTerm.trim()) {
       const lowerCaseSearch = searchTerm.toLowerCase().trim();
       currentServices = currentServices.filter((service) =>
@@ -70,11 +71,9 @@ export default function ServiceListPage() {
       );
     }
 
-    // Ordenação alfabética por nome
     return currentServices.sort((a, b) => a.nome.localeCompare(b.nome));
   }, [services, searchTerm, activeFilter]);
 
-  // Componente de Cartão de Serviço
   const ServiceCard: React.FC<{ service: ServicosType }> = ({ service }) => {
     const priceFormatted = new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -83,37 +82,35 @@ export default function ServiceListPage() {
 
     return (
       <div
-        className={`p-5 rounded-xl border transition duration-300 relative
-            ${
-              service.ativo
-                ? "bg-white border-green-200 shadow-lg hover:shadow-xl"
-                : "bg-gray-100 border-red-200 opacity-80"
-            }`}
+        className={`relative p-5 pb-16 rounded-xl bg-background border transition duration-300
+          ${
+            service.ativo
+              ? "border-accent shadow-lg hover:shadow-xl"
+              : "border-destructive opacity-80"
+          }`}
       >
-        {/* Status Indicator */}
+        {/* Indicador de status */}
         <span
           className={`absolute top-0 right-0 mt-3 mr-3 px-3 py-1 text-xs font-semibold rounded-full shadow-md
-                ${
-                  service.ativo
-                    ? "bg-green-500 text-white"
-                    : "bg-red-500 text-white"
-                }`}
+            ${
+              service.ativo
+                ? "bg-primary text-secondary-foreground"
+                : "bg-destructive text-secondary-foreground"
+            }`}
         >
           {service.ativo ? "ATIVO" : "INATIVO"}
         </span>
 
         <h2
           className={`text-xl font-extrabold mb-3 break-words pr-12 ${
-            service.ativo ? "text-gray-900" : "text-gray-600"
+            service.ativo ? "text-primary" : "text-secondary-foreground"
           }`}
         >
           {service.nome}
         </h2>
 
-        {/* Detalhes */}
         <div className="text-sm space-y-2">
-          {/* Preço */}
-          <div className="flex items-center text-gray-700 font-bold text-lg">
+          <div className="flex items-center text-accent font-bold text-lg">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="w-5 h-5 mr-2 text-green-500"
@@ -129,8 +126,7 @@ export default function ServiceListPage() {
             Preço: <span className="ml-2 text-green-700">{priceFormatted}</span>
           </div>
 
-          {/* Duração */}
-          <div className="flex items-center text-gray-600">
+          <div className="flex items-center text-accent font-bold text-lg">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="w-5 h-5 mr-2 text-blue-500"
@@ -151,32 +147,18 @@ export default function ServiceListPage() {
           </div>
         </div>
 
-        {/* Ações (Placeholder para Editar/Excluir) */}
-        <div className="mt-4 pt-4 border-t border-gray-200 flex justify-end">
-          <button
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition duration-150
-                    ${
-                      service.ativo
-                        ? "bg-teal-500 text-white hover:bg-teal-600"
-                        : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                    }`}
-            onClick={() => rota.push(`/dashboard/servicos/${service.id}`)}
-          >
-            {service.ativo ? "Editar" : "Ativar / Editar"}
-          </button>
+        {/* Botão fixo no canto inferior direito do card */}
+        <div className="absolute bottom-4 right-4">
+          <EditServiceButton
+            serviceId={service.id}
+            refresh={() => {
+              estabelecimento?.id && fetchServices(estabelecimento?.id);
+            }}
+          />
         </div>
       </div>
     );
   };
-
-  if (loadingPerfil || loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
-        <p className="ml-4 text-gray-600">Carregando serviços...</p>
-      </div>
-    );
-  }
 
   if (error) {
     return (
@@ -188,16 +170,24 @@ export default function ServiceListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8">
-      <h1 className="text-2xl md:text-3xl font-extrabold mb-6 text-gray-800 border-b pb-2">
-        Lista de Serviços Ofertados
-      </h1>
+    <div className="min-h-screen p-4 sm:p-6 md:p-8">
+      <div className="flex flex-row justify-between items-center w-full border-b mb-6 pb-4">
+        <h1 className="text-2xl md:text-3xl font-extrabold text-secondary-foreground">
+          Lista de Serviços Ofertados
+        </h1>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Barra de Filtros */}
-      {/* ------------------------------------------------------------------ */}
-      <div className="bg-white p-4 rounded-xl shadow-md mb-6 space-y-4 md:flex md:space-y-0 md:space-x-4">
-        {/* Campo de Pesquisa */}
+        <ServicosFormButton onOpen={() => setOpen(true)} />
+      </div>
+
+      {estabelecimento?.id && (
+        <NovoServicosForm
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          idEstabelecimento={estabelecimento?.id}
+        />
+      )}
+
+      <div className="bg-background p-4 rounded-xl shadow-md mb-6 space-y-4 md:flex md:space-y-0 md:space-x-4">
         <div className="relative flex-grow">
           <input
             type="text"
@@ -221,7 +211,6 @@ export default function ServiceListPage() {
           </svg>
         </div>
 
-        {/* Filtro por Status (Ativo/Inativo) */}
         <div className="relative md:w-56">
           <label htmlFor="active-filter" className="sr-only">
             Filtrar por Status
@@ -232,7 +221,7 @@ export default function ServiceListPage() {
             onChange={(e) =>
               setActiveFilter(e.target.value as ActiveFilterType)
             }
-            className="w-full p-3 border border-gray-300 rounded-lg focus:border-teal-500 text-gray-700 bg-white cursor-pointer"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:border-teal-500 text-gray-700 cursor-pointer"
           >
             <option value="active">Apenas Ativos</option>
             <option value="inactive">Apenas Inativos</option>
@@ -241,9 +230,7 @@ export default function ServiceListPage() {
         </div>
       </div>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Lista de Serviços */}
-      {/* ------------------------------------------------------------------ */}
+      {loading && <Loading />}
       <p className="text-sm text-gray-600 mb-4">
         Exibindo {filteredServices.length} de {services.length} serviços
         (filtrados).

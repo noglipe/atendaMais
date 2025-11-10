@@ -103,7 +103,7 @@ export default function EditServicePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-gray-50">
+      <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-background">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
         <p className="mt-4 text-lg text-gray-600">
           Buscando detalhes do serviço...
@@ -140,8 +140,8 @@ export default function EditServicePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8 flex justify-center">
-      <div className="w-full max-w-2xl bg-white p-6 sm:p-8 rounded-2xl shadow-2xl border border-gray-100">
+    <div className="min-h-screen  p-4 sm:p-6 md:p-8 flex justify-center">
+      <div className="w-full max-w-2xl bg-background p-6 sm:p-8 rounded-2xl shadow-2xl border border-gray-100">
         <h1 className="text-2xl md:text-3xl font-extrabold mb-6 text-gray-800 border-b pb-2">
           Editar Serviço:{" "}
           <span className="text-teal-600">{serviceData.nome}</span>

@@ -12,13 +12,13 @@ import {
   retornaNumeros,
 } from "@/utils/nogDevFormatar";
 import { ArrowBigLeft, Plus, Trash, Trash2 } from "lucide-react";
-import { formataContatoPorTipo, parseDbContacts } from "../funcoes/funcoes";
-
-const CONTACT_OPTIONS: TiposContatoType[] = ["Email", "Telefone", "Instagram"];
-const CLASS_NAME_LABEL =
-  "block text-sm font-medium text-secondary-foreground mb-1";
-const CLASS_NAME_INPUT =
-  "w-full p-3 border border-border rounded-lg focus:border-accent focus:ring-1 focus:ring-accent transition duration-150 text-primary";
+import { formataContatoPorTipo, parseDbContacts } from "../tools/funcoes";
+import {
+  CLASS_NAME_INPUT,
+  CLASS_NAME_LABEL,
+  CONTACT_OPTIONS,
+} from "../tools/padroes";
+import Botao from "../../components/Botao";
 
 export default function EditClientPage() {
   const [nome, setNome] = useState("");
@@ -315,18 +315,9 @@ export default function EditClientPage() {
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={isSaving || nome.trim() === ""}
-            className={`w-full py-3 rounded-lg font-bold text-primary-foreground transition duration-200 shadow-lg cursor-pointer
-                ${
-                  isSaving || nome.trim() === ""
-                    ? "bg-primary/50 cursor-not-allowed"
-                    : "bg-primary hover:bg-primary/90 hover:shadow-xl"
-                }`}
-          >
-            {isSaving ? "Salvando..." : "Salvar Alterações"}
-          </button>
+          <Botao type="submit" disabled={isSaving || nome.trim() === ""}>
+            {loading ? "Salvando..." : "Salvar Alterações"}
+          </Botao>
         </form>
       </div>
     </div>

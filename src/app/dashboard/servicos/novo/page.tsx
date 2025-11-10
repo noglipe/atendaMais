@@ -2,33 +2,46 @@
 
 import { usePerfil } from "@/context/ClientProvider";
 import { supabase } from "@/lib/supabase/supabase";
+import { ArrowBigLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import {
+  CLASS_NAME_INPUT,
+  CLASS_NAME_LABEL,
+} from "../../cliente/tools/padroes";
+import Botao from "../../components/Botao";
 
 export default function CreateServicePage() {
   const [nome, setNome] = useState("");
-  // Usamos string para o input, mas converteremos para número na submissão
-  const [tempoDuracao, setTempoDuracao] = useState<string>("60"); // Duração em minutos
-  const [preco, setPreco] = useState<string>("0.00"); // Preço do serviço
-
+  const [tempoDuracao, setTempoDuracao] = useState<string>("0");
+  const [preco, setPreco] = useState<string>("0.00");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [hasPreviousPage, setHasPreviousPage] = useState(false);
 
-  // Obtém o ID do estabelecimento
   const { estabelecimento, loading: loadingCliente } = usePerfil();
+  const rota = useRouter();
 
-  // Função para formatar o preço conforme o usuário digita (opcional, mas bom para UX)
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/[^0-9,.]/g, ""); // Remove caracteres não numéricos
-    value = value.replace(",", "."); // Padroniza vírgula para ponto para facilitar a conversão
-
-    // Remove pontos extras, deixando apenas o primeiro
-    const parts = value.split(".");
-    if (parts.length > 2) {
-      value = parts[0] + "." + parts.slice(1).join("");
+  // Verifica histórico de navegação no client-side
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setHasPreviousPage(window.history.length > 2);
     }
+  }, []);
 
-    setPreco(value);
+  // Auto limpa mensagem após alguns segundos
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(""), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, ""); // mantém apenas números
+    const numericValue = parseFloat(value) / 100;
+    setPreco(numericValue.toFixed(2));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,20 +50,15 @@ export default function CreateServicePage() {
     setMessage("");
 
     const estabelecimentoId = estabelecimento?.id;
-
     if (!estabelecimentoId) {
       setLoading(false);
-      setMessage(
-        "Erro: ID do Estabelecimento não encontrado. Verifique o contexto do estabelecimento."
-      );
+      setMessage("Erro: ID do estabelecimento não encontrado.");
       return;
     }
 
-    // Conversão de tipos para o banco de dados
-    const parsedPreco = parseFloat(preco.replace(",", ".")) || 0.0;
+    const parsedPreco = parseFloat(preco) || 0.0;
     const parsedDuracao = parseInt(tempoDuracao, 10) || 0;
 
-    // Validação básica
     if (nome.trim().length < 3) {
       setLoading(false);
       setMessage("Erro: O nome do serviço deve ter pelo menos 3 caracteres.");
@@ -61,23 +69,25 @@ export default function CreateServicePage() {
       const { error } = await supabase.from("servicos").insert([
         {
           nome: nome.trim(),
-          tempo_duracao: parsedDuracao, // inteiro (minutos)
-          preco: parsedPreco, // float/decimal
-          ativo: true, // boolean
+          tempo_duracao: parsedDuracao,
+          preco: parsedPreco,
+          ativo: true,
           estabelecimento_id: estabelecimentoId,
         },
       ]);
 
       if (error) {
         setMessage(`Erro ao cadastrar serviço: ${error.message}`);
+        toast.error(`Erro ao cadastrar serviço: ${error.message}`);
       } else {
         setMessage(`Serviço "${nome}" cadastrado com sucesso!`);
-        toast.success(`Serviço "${nome}" cadastrado com sucesso`);
+        toast.success(`Serviço "${nome}" cadastrado com sucesso!`);
 
         // Limpa formulário
         setNome("");
-        setTempoDuracao("60");
+        setTempoDuracao("0");
         setPreco("0.00");
+        rota.refresh();
       }
     } catch (err: any) {
       setMessage(
@@ -99,81 +109,74 @@ export default function CreateServicePage() {
   }
 
   return (
-    <div className="min-h-screen flex items-start justify-center pt-10 bg-gray-50">
-      <div className="w-full max-w-lg p-6 md:p-8 bg-white shadow-2xl rounded-xl">
-        <h1 className="text-3xl font-extrabold mb-8 text-gray-800 text-center border-b pb-4">
+    <div className="min-h-screen flex items-start justify-center pt-10">
+      <div className="w-full max-w-lg p-6 md:p-8 bg-background shadow-2xl rounded-xl">
+        {hasPreviousPage && (
+          <button
+            onClick={() => rota.back()}
+            className="text-primary flex flex-row gap-1 p-2 cursor-pointer"
+          >
+            <ArrowBigLeft /> Voltar
+          </button>
+        )}
+
+        <h1 className="text-3xl font-extrabold mb-8 text-pretty text-center border-b pb-4">
           Cadastrar Novo Serviço
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Campo Nome do Serviço (Obrigatório) */}
           <div className="relative">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nome do Serviço *
-            </label>
+            <label className={CLASS_NAME_LABEL}>Nome do Serviço *</label>
             <input
               type="text"
               placeholder="Ex: Corte de Cabelo, Massagem Relaxante"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition duration-150"
+              className={CLASS_NAME_INPUT}
               required
             />
           </div>
 
-          {/* Duração e Preço (Duas Colunas) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Duração (Minutos) *
-              </label>
+              <label className={CLASS_NAME_LABEL}>Duração (Minutos) *</label>
               <input
                 type="number"
                 placeholder="Minutos"
                 value={tempoDuracao}
                 onChange={(e) => setTempoDuracao(e.target.value)}
                 min="1"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition duration-150"
+                className={CLASS_NAME_INPUT}
                 required
               />
             </div>
 
             <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Preço (R$) *
-              </label>
+              <label className={CLASS_NAME_LABEL}>Preço (R$) *</label>
               <div className="relative flex items-center">
-                <span className="absolute left-3 text-gray-500 font-bold">
+                <span className="absolute left-3 text-gray-500 font-bold ">
                   R$
                 </span>
                 <input
-                  type="text" // Usamos text para permitir melhor formatação e evitar problemas com float
+                  type="text"
                   placeholder="0,00"
-                  value={preco.replace(".", ",")} // Exibe com vírgula para o usuário
+                  value={Intl.NumberFormat("pt-BR", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }).format(parseFloat(preco))}
                   onChange={handlePriceChange}
-                  className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition duration-150"
+                  className={`${CLASS_NAME_INPUT} pl-10`}
                   required
                 />
               </div>
             </div>
           </div>
 
-          {/* Botão de Submissão */}
-          <button
-            type="submit"
-            disabled={loading || nome.trim() === ""}
-            className={`w-full py-3 rounded-lg font-bold text-white transition duration-200 shadow-lg 
-                            ${
-                              loading || nome.trim() === ""
-                                ? "bg-teal-300 cursor-not-allowed"
-                                : "bg-teal-600 hover:bg-teal-700 hover:shadow-xl"
-                            }`}
-          >
-            {loading ? "Cadastrando..." : "Confirmar Cadastro do Serviço"}
-          </button>
+          <Botao loading={loading} type="submit" className="w-full">
+            {loading ? "Salvando..." : "Salvar Alterações"}
+          </Botao>
         </form>
 
-        {/* Mensagem de Status */}
         {message && (
           <p
             className={`mt-4 p-3 rounded-lg text-center font-medium ${

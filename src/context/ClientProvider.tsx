@@ -1,7 +1,7 @@
 "use client";
 
 import { supabase } from "@/lib/supabase/supabase";
-import { Cliente, Estabelecimento, Perfil } from "@/types/next";
+import { ClienteType, EstabelecimentoType, PerfilType } from "@/types/next";
 import {
   createContext,
   useContext,
@@ -11,8 +11,8 @@ import {
 } from "react";
 
 interface PerfilContextType {
-  perfil: Perfil | null;
-  estabelecimento: Estabelecimento | null;
+  perfil: PerfilType | null;
+  estabelecimento: EstabelecimentoType | null;
   loading: boolean;
 }
 
@@ -27,9 +27,9 @@ interface PerfilProviderProps {
 }
 
 export const ClientProvider = ({ children }: PerfilProviderProps) => {
-  const [perfil, setPerfil] = useState<Perfil | null>(null);
+  const [perfil, setPerfil] = useState<PerfilType | null>(null);
   const [estabelecimento, setEstabelecimento] =
-    useState<Estabelecimento | null>(null);
+    useState<EstabelecimentoType | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
