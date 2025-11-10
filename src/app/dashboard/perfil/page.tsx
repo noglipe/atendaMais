@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
-import { Estabelecimento, Perfil } from "@/types/next";
+import { EstabelecimentoType, PerfilType } from "@/types/next";
+import { CLASS_NAME_INPUT, CLASS_NAME_LABEL } from "../cliente/tools/padroes";
 
 export default function PerfilPage() {
   const supabase = createClientComponentClient();
-  const [perfil, setPerfil] = useState<Perfil | null>(null);
-  const [estab, setEstab] = useState<Estabelecimento | null>(null);
+  const [perfil, setPerfil] = useState<PerfilType | null>(null);
+  const [estab, setEstab] = useState<EstabelecimentoType | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -149,9 +150,10 @@ export default function PerfilPage() {
     );
   };
 
-  const inputStyle =
+  const CLASS_NAME_INPUT =
     "block w-full rounded-md border-0 py-2 px-3 text-primary shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-primary focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6";
-  const labelStyle = "block text-sm font-medium leading-6 text-primary mb-1";
+  const CLASS_NAME_LABEL =
+    "block text-sm font-medium leading-6 text-primary mb-1";
 
   return (
     <div className="min-h-screen bg-background py-10">
@@ -172,7 +174,7 @@ export default function PerfilPage() {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="sm:col-span-1">
-                  <label htmlFor="perfil-nome" className={labelStyle}>
+                  <label htmlFor="perfil-nome" className={CLASS_NAME_LABEL}>
                     Nome
                   </label>
                   <input
@@ -182,12 +184,12 @@ export default function PerfilPage() {
                     placeholder="Seu nome"
                     value={perfil?.nome || ""}
                     onChange={handlePerfilChange}
-                    className={inputStyle}
+                    className={CLASS_NAME_INPUT}
                   />
                 </div>
 
                 <div className="sm:col-span-1">
-                  <label htmlFor="perfil-email" className={labelStyle}>
+                  <label htmlFor="perfil-email" className={CLASS_NAME_LABEL}>
                     Email
                   </label>
                   <input
@@ -197,12 +199,12 @@ export default function PerfilPage() {
                     placeholder="Seu email"
                     value={perfil?.email || ""}
                     onChange={handlePerfilChange}
-                    className={inputStyle}
+                    className={CLASS_NAME_INPUT}
                   />
                 </div>
 
                 <div className="sm:col-span-1">
-                  <label htmlFor="perfil-whatsapp" className={labelStyle}>
+                  <label htmlFor="perfil-whatsapp" className={CLASS_NAME_LABEL}>
                     Whatsapp
                   </label>
                   <input
@@ -212,7 +214,7 @@ export default function PerfilPage() {
                     placeholder="(XX) XXXXX-XXXX"
                     value={perfil?.whatsapp || ""}
                     onChange={handlePerfilChange}
-                    className={inputStyle}
+                    className={CLASS_NAME_INPUT}
                   />
                 </div>
               </div>
@@ -225,7 +227,7 @@ export default function PerfilPage() {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-6 gap-6">
                 <div className="sm:col-span-3">
-                  <label htmlFor="estab-nome" className={labelStyle}>
+                  <label htmlFor="estab-nome" className={CLASS_NAME_LABEL}>
                     Nome Fantasia
                   </label>
                   <input
@@ -234,12 +236,12 @@ export default function PerfilPage() {
                     name="nome"
                     value={estab?.nome || ""}
                     onChange={handleEstabChange}
-                    className={inputStyle}
+                    className={CLASS_NAME_INPUT}
                   />
                 </div>
 
                 <div className="sm:col-span-3">
-                  <label htmlFor="estab-razao" className={labelStyle}>
+                  <label htmlFor="estab-razao" className={CLASS_NAME_LABEL}>
                     Razão Social
                   </label>
                   <input
@@ -248,12 +250,12 @@ export default function PerfilPage() {
                     name="razao_social"
                     value={estab?.razao_social || ""}
                     onChange={handleEstabChange}
-                    className={inputStyle}
+                    className={CLASS_NAME_INPUT}
                   />
                 </div>
 
                 <div className="sm:col-span-3">
-                  <label htmlFor="estab-doc" className={labelStyle}>
+                  <label htmlFor="estab-doc" className={CLASS_NAME_LABEL}>
                     Documento (CNPJ/CPF)
                   </label>
                   <input
@@ -262,12 +264,12 @@ export default function PerfilPage() {
                     name="documento"
                     value={estab?.documento || ""}
                     onChange={handleEstabChange}
-                    className={inputStyle}
+                    className={CLASS_NAME_INPUT}
                   />
                 </div>
 
                 <div className="sm:col-span-3">
-                  <label htmlFor="estab-whatsapp" className={labelStyle}>
+                  <label htmlFor="estab-whatsapp" className={CLASS_NAME_LABEL}>
                     Whatsapp do Estabelecimento
                   </label>
                   <input
@@ -276,7 +278,7 @@ export default function PerfilPage() {
                     name="whatsapp"
                     value={estab?.whatsapp || ""}
                     onChange={handleEstabChange}
-                    className={inputStyle}
+                    className={CLASS_NAME_INPUT}
                   />
                 </div>
 
@@ -285,7 +287,7 @@ export default function PerfilPage() {
                 </h3>
 
                 <div className="sm:col-span-2">
-                  <label htmlFor="endereco-cep" className={labelStyle}>
+                  <label htmlFor="endereco-cep" className={CLASS_NAME_LABEL}>
                     CEP
                   </label>
                   <input
@@ -294,12 +296,12 @@ export default function PerfilPage() {
                     name="cep"
                     value={estab?.endereco?.cep || ""}
                     onChange={handleEnderecoChange}
-                    className={inputStyle}
+                    className={CLASS_NAME_INPUT}
                   />
                 </div>
 
                 <div className="sm:col-span-4">
-                  <label htmlFor="endereco-rua" className={labelStyle}>
+                  <label htmlFor="endereco-rua" className={CLASS_NAME_LABEL}>
                     Rua
                   </label>
                   <input
@@ -308,12 +310,12 @@ export default function PerfilPage() {
                     name="rua"
                     value={estab?.endereco?.rua || ""}
                     onChange={handleEnderecoChange}
-                    className={inputStyle}
+                    className={CLASS_NAME_INPUT}
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label htmlFor="endereco-numero" className={labelStyle}>
+                  <label htmlFor="endereco-numero" className={CLASS_NAME_LABEL}>
                     Número
                   </label>
                   <input
@@ -322,12 +324,12 @@ export default function PerfilPage() {
                     name="numero"
                     value={estab?.endereco?.numero || ""}
                     onChange={handleEnderecoChange}
-                    className={inputStyle}
+                    className={CLASS_NAME_INPUT}
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label htmlFor="endereco-cidade" className={labelStyle}>
+                  <label htmlFor="endereco-cidade" className={CLASS_NAME_LABEL}>
                     Cidade
                   </label>
                   <input
@@ -336,12 +338,12 @@ export default function PerfilPage() {
                     name="cidade"
                     value={estab?.endereco?.cidade || ""}
                     onChange={handleEnderecoChange}
-                    className={inputStyle}
+                    className={CLASS_NAME_INPUT}
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label htmlFor="endereco-estado" className={labelStyle}>
+                  <label htmlFor="endereco-estado" className={CLASS_NAME_LABEL}>
                     Estado
                   </label>
                   <input
@@ -350,7 +352,7 @@ export default function PerfilPage() {
                     name="estado"
                     value={estab?.endereco?.estado || ""}
                     onChange={handleEnderecoChange}
-                    className={inputStyle}
+                    className={CLASS_NAME_INPUT}
                   />
                 </div>
               </div>
