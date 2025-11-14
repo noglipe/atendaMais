@@ -209,7 +209,7 @@ const MenuItem = ({
   const activeClasses =
     "bg-accent text-accent-foreground shadow-lg transform lg:translate-x-1 border-ring";
   const inactiveClasses =
-    "text-primary-foreground hover:bg-secondary hover:text-primary-foreground";
+    "flex items-center text-primary-foreground hover:bg-secondary hover:text-primary-foreground";
 
   return (
     <a
@@ -362,7 +362,7 @@ export function SideMenu() {
             isCollapsed ? "lg:hidden" : "lg:block"
           }`}
         >
-          <p className="font-bold">
+          <p className="font-bold text-primary">
             Olá, {capitalizeEachWord(perfil?.nome?.toWellFormed())}
           </p>
         </div>
