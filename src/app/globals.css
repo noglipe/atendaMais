@@ -1,113 +1,128 @@
 @import "tailwindcss";
-@import "tw-animate-css";
+@import "tw-animate-css"; /* Mantive sua importação, se você a utiliza */
 
 @custom-variant dark (&:is(.dark *));
 
 /* =================================================================
-   TEMA CLARO (LIGHT) - SEU ORIGINAL
-   ================================================================= */
+ TEMA CLARO (LIGHT) - SERIEDADE E CLAREZA
+ ================================================================= */
 :root {
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-hover: #1d4ed8;
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-hover: #e5e7eb;
-  --accent: oklch(0.968 0.007 247.896);
-  --muted: oklch(0.968 0.007 247.896);
-  --border: oklch(0.929 0.013 255.508);
+  /* --- Base (Fundo e Texto) --- */
+  --background: oklch(1 0 0); /* Fundo Branco Puro */
+  --foreground: oklch(
+    0.13 0.03 260
+  ); /* Texto Azul Marinho Escuro (Profissional) */
+  --border: oklch(0.93 0.005 260); /* Bordas Cinza Muito Claro */
+  --gradient-color-light: oklch(
+    0.98 0 0
+  ); /* Cor para gradiente sutil no light theme */
+
+  /* --- Primário (Confiança e Ação) --- */
+  --primary: oklch(0.42 0.08 260); /* Azul Profissional (Confiança) */
+  --primary-hover: oklch(0.35 0.08 260);
+  --primary-foreground: oklch(0.98 0 0); /* Texto Branco para contraste */
+
+  /* --- Secundário/Muted (Superfícies e Neutros) --- */
+  --secondary: oklch(0.96 0.005 260); /* Cinza Claro Suave */
+  --secondary-hover: oklch(0.92 0.005 260);
+  --secondary-foreground: oklch(0.3 0.05 260);
+  --muted: oklch(0.96 0.005 260);
+  --muted-foreground: oklch(0.55 0.03 260); /* Texto Cinza Médio */
+
+  /* --- Accent (Destaque WhatsApp/Encouragement) --- */
+  --accent: oklch(0.65 0.15 150); /* Verde WhatsApp sutil e moderno */
+  --accent-foreground: oklch(0.1 0.01 150); /* Texto Escuro no Accent */
+
+  /* --- Outros --- */
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --card-foreground: var(--foreground);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  --popover-foreground: var(--foreground);
+  --destructive: oklch(0.6 0.25 25); /* Vermelho Padrão para Erros */
+  --input: oklch(0.93 0.005 260);
+  --ring: oklch(0.42 0.08 260); /* Anel de foco (Azul Primário) */
+  --radius: 0.625rem;
+
+  /* --- Sidebar (Geralmente no tema claro é mais neutro) --- */
+  --sidebar: oklch(0.98 0 0);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--secondary);
+  --sidebar-accent-foreground: var(--secondary-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+
+  /* --- Cores dos Gráficos --- */
+  --chart-1: oklch(0.42 0.08 260); /* Azul Principal */
+  --chart-2: oklch(0.65 0.15 150); /* Verde WhatsApp */
+  --chart-3: oklch(0.6 0.15 45); /* Laranja Suave (Encouragement) */
+  --chart-4: oklch(0.55 0.08 190); /* Ciano/Aqua */
+  --chart-5: oklch(0.7 0.1 300); /* Roxo Suave */
 }
 
 /* =================================================================
-   TEMA ESCURO (DARK) - CRM WHATSAPP
-   ================================================================= */
+ TEMA ESCURO (DARK) - CONFORTO VISUAL E SERENIDADE
+ ================================================================= */
 .dark {
   /* --- Base (Fundo e Texto) --- */
-  /* Fundo: Um cinza-azulado bem escuro (mais suave que preto) */
-  --background: oklch(0.15 0.015 255);
-  /* Texto: Um branco levemente acinzentado (menos "brilhante") */
-  --foreground: oklch(0.95 0.005 255);
-
-  --gradient-color-light: oklch(27.544% 0.07926 252.619);
+  /* Fundo: Cinza-azul muito escuro (mais suave que preto) */
+  --background: oklch(0.12 0.01 260);
+  --gradient-color-light: oklch(0.15 0.012 260); /* Gradiente sutil */
+  /* Texto: Branco levemente acinzentado (menos "brilhante") */
+  --foreground: oklch(0.9 0.005 260);
 
   /* --- Cards e Popovers (Superfícies) --- */
-  /* Cards: Um pouco mais claros que o fundo para criar profundidade */
-  --card: oklch(0.2 0.02 255);
-  --card-foreground: oklch(0.95 0.005 255);
-  --popover: oklch(0.22 0.022 255);
-  --popover-foreground: oklch(0.95 0.005 255);
+  /* Cards: Um pouco mais claros que o fundo para profundidade */
+  --card: oklch(0.16 0.015 260);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.18 0.015 260);
+  --popover-foreground: var(--foreground);
 
-  /* --- Primário (Botões de Ação) --- */
-  /* A "cor leve" - um verde moderno inspirado no WhatsApp */
-  --primary: oklch(0.62 0.16 148.72);
-  /* Texto do botão primário (escuro para contrastar com o verde) */
-  --primary-foreground: oklch(0.1 0.01 150);
+  /* --- Primário (Confiança e Ação) --- */
+  /* Azul Profissional para confiança */
+  --primary: oklch(0.48 0.08 260);
+  /* Texto do botão primário (Branco/claro) */
+  --primary-foreground: oklch(0.98 0 0);
 
-  /* --- Secundário (Botões e elementos neutros) --- */
-  --secondary: oklch(0.25 0.02 255);
-  --secondary-foreground: oklch(0.8 0.01 255);
+  /* --- Secundário/Muted (Superfícies e Neutros) --- */
+  --secondary: oklch(0.25 0.02 260);
+  --secondary-foreground: oklch(0.7 0.01 260);
+  --muted: oklch(0.25 0.02 260);
+  --muted-foreground: oklch(0.55 0.01 260);
 
-  /* --- Muted (Textos e fundos discretos) --- */
-  --muted: oklch(0.25 0.02 255);
-  --muted-foreground: oklch(0.6 0.015 255);
-
-  /* --- Accent (Links ou destaques secundários) --- */
-  /* Usamos um azul vibrante para diferenciar do verde primário */
-  --accent: oklch(0.65 0.15 250);
-  --accent-foreground: oklch(0.98 0 0);
+  /* --- Accent (Destaque WhatsApp/Encouragement) --- */
+  /* Verde WhatsApp sutil e moderno */
+  --accent: oklch(0.65 0.15 150);
+  --accent-foreground: oklch(0.1 0.01 150);
 
   /* --- Outros --- */
   --destructive: oklch(0.6 0.22 27); /* Vermelho para alertas */
-  --border: oklch(0.25 0.02 255); /* Bordas sutis */
-  --input: oklch(0.25 0.02 255); /* Fundo de inputs */
-  --ring: oklch(0.62 0.16 148.72); /* Anel de foco (usa a cor primária) */
+  --border: oklch(0.25 0.02 260); /* Bordas sutis */
+  --input: oklch(0.2 0.015 260); /* Fundo de inputs */
+  --ring: oklch(0.48 0.08 260); /* Anel de foco (usa a cor primária) */
 
   /* --- Cores dos Gráficos (Ajustadas para o tema dark) --- */
-  --chart-1: oklch(0.62 0.16 148.72); /* Verde (Primário) */
-  --chart-2: oklch(0.65 0.15 250); /* Azul (Accent) */
+  --chart-1: oklch(0.48 0.08 260); /* Azul Principal */
+  --chart-2: oklch(0.65 0.15 150); /* Verde WhatsApp */
   --chart-3: oklch(0.7 0.2 300); /* Roxo/Magenta */
   --chart-4: oklch(0.75 0.2 50); /* Amarelo/Laranja */
   --chart-5: oklch(0.7 0.15 190); /* Ciano */
 
   /* --- Sidebar (Seguindo o tema do Card) --- */
-  --sidebar: oklch(0.2 0.02 255);
-  --sidebar-foreground: oklch(0.95 0.005 255);
-  --sidebar-primary: oklch(0.62 0.16 148.72); /* Item ativo (Verde) */
-  --sidebar-primary-foreground: oklch(0.1 0.01 150); /* Texto do item ativo */
-  --sidebar-accent: oklch(0.25 0.02 255); /* Hover (fundo) */
-  --sidebar-accent-foreground: oklch(0.95 0.005 255); /* Hover (texto) */
-  --sidebar-border: oklch(0.25 0.02 255);
-  --sidebar-ring: oklch(0.62 0.16 148.72);
+  --sidebar: oklch(0.16 0.015 260);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary); /* Item ativo (Azul) */
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: oklch(0.2 0.015 260); /* Hover (fundo) */
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
 /* =================================================================
-   CONFIGURAÇÕES BASE
-   ================================================================= */
+ CONFIGURAÇÕES BASE E MAPPING (Tudo que estava no seu original)
+ ================================================================= */
 
 body {
   /* Um gradiente linear que vai de uma cor à outra */
@@ -132,8 +147,14 @@ body {
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-hover: var(
+    --primary-hover
+  ); /* Adicionado para uso opcional */
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
+  --color-secondary-hover: var(
+    --secondary-hover
+  ); /* Adicionado para uso opcional */
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);

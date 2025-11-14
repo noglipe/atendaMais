@@ -1,30 +1,27 @@
-// ----------------------------------------------------
-// Componente de Página Principal (Root)
-// Salve como: src/app/page.jsx ou pages/index.jsx
-// ----------------------------------------------------
-
-import React from "react";
+import { Plus, PlusCircle, PlusSquare, PlusSquareIcon } from "lucide-react";
 import Link from "next/link"; // Usar o Link do Next.js para navegação interna ou externa
 
 // Informações de contato
-const WHATSAPP_NUMBER = "55SEUNUMEROAQUI"; // Substitua pelo seu número de telefone com código do país (55)
+const WHATSAPP_NUMBER = "5527997925394";
 const WHATSAPP_MESSAGE = encodeURIComponent(
-  "Olá, gostaria de saber mais sobre o Inpulsione Pro e como ele pode otimizar meu negócio!"
+  "Olá, gostaria de saber mais sobre o Atenda Mais e como ele pode otimizar meu negócio!"
 );
 const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`;
 
 const HomePage = () => {
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800">
+    <div className="min-h-screen bg-gradient-color-light text-primary dark">
       {/* ==================================================
         Seção Principal (Hero)
         ==================================================
       */}
-      <header className="bg-white shadow-md">
+      <header className="bg-background shadow-md">
         <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-blue-600">Inpulsione Pro</h1>
+          <h1 className="flex flex-row gap-2 items-center text-3xl font-bold text-primary-foreground animate-bounce  animation-duration-initial">
+            Atenda <PlusCircle className="animate-bounce duration-75 " />
+          </h1>
           <Link href="#contato" passHref>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300">
+            <button className="bg-accent text-secondary px-4 py-2 rounded-lg hover:bg-secondary-hover transition duration-300">
               Fale Conosco
             </button>
           </Link>
@@ -32,16 +29,16 @@ const HomePage = () => {
       </header>
 
       <main>
-        <section className="pt-20 pb-16 bg-blue-600 text-white text-center">
+        <section className="pt-20 pb-16 bg-accent text-primary-foreground text-center">
           <div className="container mx-auto px-6">
             <h2 className="text-5xl md:text-6xl font-extrabold mb-4 leading-tight">
               Domine Sua Presença Digital com o{" "}
-              <span className="text-yellow-300">Inpulsione Pro</span>
+              <span className="text-accent-foreground">Atenda+</span>
             </h2>
             <p className="text-xl md:text-2xl mb-8 font-light">
               A plataforma completa que automatiza seu relacionamento e
-              impulsiona seus resultados, focada no canal mais usado: **o
-              WhatsApp.**
+              impulsiona seus resultados, focada no canal mais usado:{" "}
+              <strong>o WhatsApp</strong>.
             </p>
 
             {/* CTA Principal */}

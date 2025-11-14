@@ -1,17 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-
-// ====================================================================
-// MOCK DE DEPENDÊNCIA: ClientProvider
-// ====================================================================
-const ClientProvider = ({ children }: { children: React.ReactNode }) => {
-  return <>{children}</>;
-};
-
-// ====================================================================
-// COMPONENTE SideMenu (CONSOLIDADO E CORRIGIDO PARA SCROLL)
-// ====================================================================
+import { usePerfil } from "@/context/ClientProvider";
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import { capitalizeEachWord } from "@nogueiradev/nogdevtools";
 
 // --- Links de Navegação Mockados (Atualizado com as novas rotas) ---
 const menuItems = [
@@ -215,9 +207,9 @@ const MenuItem = ({
   const baseClasses =
     "flex items-center space-x-3 p-3 rounded-xl transition-all duration-200 whitespace-nowrap overflow-hidden";
   const activeClasses =
-    "bg-indigo-600 text-white shadow-lg transform lg:translate-x-1";
+    "bg-accent text-accent-foreground shadow-lg transform lg:translate-x-1 border-ring";
   const inactiveClasses =
-    "text-indigo-200 hover:bg-indigo-700 hover:text-white";
+    "text-primary-foreground hover:bg-secondary hover:text-primary-foreground";
 
   return (
     <a
@@ -238,10 +230,10 @@ const MenuItem = ({
 export function SideMenu() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const { perfil } = usePerfil();
 
   // Simulação da rota ativa (Ajustado para a nova estrutura de rotas)
   const [currentPath, setCurrentPath] = useState("/dashboard");
-  const mockUser = "Usuário Admin";
 
   useEffect(() => {
     const handleResize = () => {
@@ -266,7 +258,7 @@ export function SideMenu() {
     <div className="relative">
       {/* Botão Hamburger (Visível apenas em telas pequenas) */}
       <button
-        className="lg:hidden fixed top-4 left-4 z-50 p-3 rounded-full bg-indigo-600 text-white shadow-lg"
+        className="lg:hidden fixed top-4 left-4 z-50 p-3 rounded-full bg-primary text-primary-foreground shadow-lg"
         onClick={() => setIsMobileOpen(!isMobileOpen)}
         aria-label="Abrir Menu"
       >
@@ -289,7 +281,7 @@ export function SideMenu() {
       {/* Overlay para o Mobile (Quando o menu está aberto) */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-black opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-primary opacity-50 z-40 lg:hidden"
           onClick={() => setIsMobileOpen(false)}
         ></div>
       )}
@@ -297,7 +289,7 @@ export function SideMenu() {
       {/* O Menu em si */}
       <div
         className={`
-                    bg-indigo-800 text-white flex flex-col p-5 shadow-2xl z-50 transition-all duration-300
+                    bg-primary text-primary-foreground flex flex-col p-5 shadow-2xl z-50 transition-all duration-300
                     ${menuWidthClasses} 
                     
                     // Mobile (Default): Fixed e h-screen para ser uma gaveta
@@ -315,24 +307,29 @@ export function SideMenu() {
         {/* Cabeçalho e Toggle Button */}
         <div
           className={`
-                        mb-8 pb-4 flex items-center 
-                        ${
-                          isCollapsed
-                            ? "justify-center border-b-0"
-                            : "justify-between border-b border-indigo-700"
-                        }
+                        mb-4 flex flex-col items-center justify-center 
+                        ${isCollapsed ? "border-b-0" : "border-border"}
                     `}
         >
           <div
-            className={`${
-              isCollapsed ? "hidden" : "text-2xl font-extrabold text-indigo-100"
+            className={`flex flex-col items-center justify-center ${
+              isCollapsed
+                ? ""
+                : "text-2xl font-extrabold text-primary-foreground"
             }`}
           >
-            MySystem Pro
+            <Image
+              src={"/logo.png"}
+              alt="Logo"
+              priority
+              width={50}
+              height={50}
+            />
+            Atenda+
           </div>
           {/* Botão de Colapso (Visível apenas em Desktop/Tablet) */}
           <button
-            className={`p-2 rounded-full hover:bg-indigo-700 transition-colors hidden lg:block`}
+            className={`p-2 rounded-full hover:bg-secondary transition-colors hidden lg:block`}
             onClick={() => setIsCollapsed(!isCollapsed)}
             aria-label={isCollapsed ? "Expandir Menu" : "Recolher Menu"}
           >
@@ -361,12 +358,13 @@ export function SideMenu() {
 
         {/* Área do Usuário (Oculta quando colapsada) */}
         <div
-          className={`mb-8 p-3 bg-indigo-700 rounded-xl shadow-inner border border-indigo-600 transition-opacity duration-300 ${
+          className={`mb-8 p-3 bg-secondary rounded-xl shadow-inner border border-ring transition-opacity duration-300 ${
             isCollapsed ? "lg:hidden" : "lg:block"
           }`}
         >
-          <p className="text-sm text-indigo-300">Logado como:</p>
-          <p className="font-bold">{mockUser}</p>
+          <p className="font-bold">
+            Olá, {capitalizeEachWord(perfil?.nome?.toWellFormed())}
+          </p>
         </div>
 
         {/* Navegação Principal */}
@@ -384,12 +382,12 @@ export function SideMenu() {
 
         {/* Rodapé do Menu (Oculto quando colapsado) */}
         <div
-          className={`mt-8 pt-4 border-t border-indigo-700 transition-opacity duration-300 ${
+          className={`mt-8 pt-4 border-t border-primary-foreground transition-opacity duration-300 ${
             isCollapsed ? "lg:hidden" : "lg:block"
           }`}
         >
-          <p className="text-xs text-indigo-400 text-center">
-            &copy; 2025 MySystem. Todos os direitos reservados.
+          <p className="text-xs text-primary-foreground text-center">
+            &copy; 2025 Nogeura Dev. Todos os direitos reservados.
           </p>
         </div>
       </div>
