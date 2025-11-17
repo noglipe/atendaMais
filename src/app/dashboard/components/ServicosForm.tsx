@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase/supabase";
 import Botao from "./Botao";
-import { CLASS_NAME_INPUT, CLASS_NAME_LABEL } from "../cliente/tools/padroes";
+import { CLASS_NAME_INPUT, CLASS_NAME_LABEL } from "../../tools/padroes";
 import { toast } from "sonner";
 
 type NovoServico = {

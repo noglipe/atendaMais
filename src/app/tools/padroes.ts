@@ -1,5 +1,5 @@
 import { TiposContatoType } from "@/types/next";
-import Loading from "../../components/Loading";
+import Loading from "../dashboard/components/Loading";
 
 export const CONTACT_OPTIONS: TiposContatoType[] = [
   "Email",

@@ -6,10 +6,7 @@ import { ArrowBigLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import {
-  CLASS_NAME_INPUT,
-  CLASS_NAME_LABEL,
-} from "../../cliente/tools/padroes";
+import { CLASS_NAME_INPUT, CLASS_NAME_LABEL } from "../../../tools/padroes";
 import Botao from "../../components/Botao";
 
 export default function CreateServicePage() {

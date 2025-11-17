@@ -177,7 +177,7 @@ const HomePage = () => {
         Rodapé
         ==================================================
       */}
-      <footer className="bg-background border-t border-border/10 text-primary-foreground py-8">
+      <footer className="bg-background border-t border-border/10 text-primary py-8">
         <div className="container mx-auto px-6 text-center">
           <p>
             &copy; {new Date().getFullYear()} Atenda+ - Todos os direitos

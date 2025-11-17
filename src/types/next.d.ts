@@ -1,8 +1,9 @@
-type TiposContatoType = "Email" | "Telefone" | "Instagram";
+type TiposContatoType = "Email" | "Telefone" | "Instagram" | "Whatsapp";
 
-interface ContatoType {
+export interface ContatoType {
   email?: string;
   telefone?: string;
+  whatsapp?: string;
   instagram?: string;
 }
 

@@ -8,17 +8,24 @@ import {
   formataCPF,
   retornaNumeros,
 } from "@/utils/nogDevFormatar";
-import { ArrowBigLeft, Trash } from "lucide-react";
+import {
+  ArrowLeft,
+  UserPlus,
+  Trash,
+  PlusCircle,
+  CheckCircle,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
 /** Tipos constantes e classes de estilo */
 const CONTACT_OPTIONS: TiposContatoType[] = ["Email", "Telefone", "Instagram"];
-const CLASS_NAME_LABEL =
-  "block text-sm font-medium text-secondary-foreground mb-1";
+
+// Classes de input padronizadas (refletem o estilo do modal)
 const CLASS_NAME_INPUT =
-  "w-full p-3 border border-border rounded-lg focus:border-accent focus:ring-1 focus:ring-accent transition duration-150 text-primary";
+  "mt-1 block w-full rounded-lg border-accent shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3 border bg-background text-primary transition duration-150";
+const CLASS_NAME_LABEL = "block text-sm font-medium text-primary mb-1";
 
 /** Tipo usado apenas no formulário para representar cada contato adicional */
 type ContactFormItem = {
@@ -35,7 +42,6 @@ export default function CreateClientPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  /* agora otherContacts usa o tipo do formulário */
   const [otherContacts, setOtherContacts] = useState<ContactFormItem[]>([]);
 
   const { estabelecimento, loading: loadingCliente } = usePerfil();
@@ -44,7 +50,11 @@ export default function CreateClientPage() {
     typeof window !== "undefined" && window.history.length > 2;
 
   const addContact = () => {
-    setOtherContacts([...otherContacts, { key: "Email", value: "" }]);
+    // Adiciona o novo contato com o tipo inicial 'Email' se houver
+    setOtherContacts([
+      ...otherContacts,
+      { key: CONTACT_OPTIONS[0] || "", value: "" },
+    ]);
   };
 
   const removeContact = (index: number) => {
@@ -78,6 +88,7 @@ export default function CreateClientPage() {
         CONTACT_OPTIONS.includes(contact.key as TiposContatoType) &&
         contact.value.trim() !== ""
       ) {
+        // Converte o tipo para minúsculas antes de salvar no objeto
         acc[contact.key.trim().toLowerCase()] = contact.value.trim();
       }
       return acc;
@@ -87,6 +98,7 @@ export default function CreateClientPage() {
     if (!estabelecimentoId) {
       setLoading(false);
       setMessage("Erro: ID do Estabelecimento não encontrado.");
+      toast.error("Erro: ID do Estabelecimento não encontrado.");
       return;
     }
 
@@ -110,6 +122,7 @@ export default function CreateClientPage() {
         setMessage("Cliente cadastrado com sucesso!");
         toast.success("Cliente cadastrado com sucesso!");
 
+        // Limpar o formulário após sucesso
         setNome("");
         setCpf("");
         setWhatsapp("");
@@ -126,95 +139,108 @@ export default function CreateClientPage() {
 
   if (loadingCliente) {
     return (
-      <div className="p-8 text-center">
-        Carregando dados do estabelecimento...
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg text-primary">
+          Carregando dados do estabelecimento...
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-start justify-center pt-10">
-      <div className="w-full max-w-xl p-6 md:p-8 bg-background shadow-2xl rounded-xl">
+    <div className="min-h-screen w-full flex items-start justify-center p-4 sm:p-8">
+      {/* Container Principal com Estilo de Card (Maior e Centralizado) */}
+      <div className="w-full max-w-2xl p-6 md:p-8 bg-background shadow-2xl rounded-xl border border-accent">
+        {/* Botão Voltar (Ajustado) */}
         {hasPreviousPage && (
           <button
             onClick={() => rota.back()}
-            className="text-primary flex flex-row gap-1 p-2 cursor-pointer"
+            className="text-secondary-foreground hover:text-primary flex items-center mb-6 transition duration-150 p-2 rounded-lg hover:bg-indigo-50"
           >
-            <ArrowBigLeft /> Voltar
+            <ArrowLeft className="h-5 w-5 mr-1" />
+            Voltar
           </button>
         )}
 
-        <h1 className="text-3xl font-extrabold mb-8 text-secondary-foreground text-center border-b pb-4">
-          Cadastrar Novo Cliente
-        </h1>
+        {/* Título Padronizado */}
+        <div className="flex items-center border-b pb-4 mb-8">
+          <UserPlus className="mr-3 h-8 w-8 text-primary" />
+          <h2 className="text-2xl font-bold text-primary">
+            Cadastrar Novo Cliente
+          </h2>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="relative">
-            <label className={CLASS_NAME_LABEL}>Nome Completo *</label>
-            <input
-              type="text"
-              placeholder="Nome Completo *"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              className={CLASS_NAME_INPUT}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Seção de Dados Principais */}
+          <div className="space-y-4">
             <div>
-              <label className={CLASS_NAME_LABEL}>CPF (Opcional)</label>
+              <label className={CLASS_NAME_LABEL}>Nome Completo *</label>
               <input
                 type="text"
-                placeholder="CPF (Opcional)"
-                value={formataCPF(cpf)}
-                onChange={(e) => setCpf(e.target.value)}
+                placeholder="Nome Completo *"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
                 className={CLASS_NAME_INPUT}
+                required
               />
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={CLASS_NAME_LABEL}>CPF (Opcional)</label>
+                <input
+                  type="text"
+                  placeholder="CPF"
+                  value={formataCPF(cpf)}
+                  onChange={(e) => setCpf(e.target.value)}
+                  className={CLASS_NAME_INPUT}
+                />
+              </div>
+              <div>
+                <label className={CLASS_NAME_LABEL}>WhatsApp (Opcional)</label>
+                <input
+                  type="text"
+                  placeholder="WhatsApp"
+                  value={whatsapp && formataCelular(whatsapp)}
+                  onChange={(e) => setWhatsapp(e.target.value)}
+                  className={CLASS_NAME_INPUT}
+                />
+              </div>
+            </div>
+
             <div>
-              <label className={CLASS_NAME_LABEL}>WhatsApp (Opcional)</label>
+              <label htmlFor="nascimento" className={CLASS_NAME_LABEL}>
+                Data de Nascimento
+              </label>
               <input
-                type="text"
-                placeholder="WhatsApp (Opcional)"
-                value={formataCelular(whatsapp)}
-                onChange={(e) => setWhatsapp(e.target.value)}
-                className={CLASS_NAME_INPUT}
+                id="nascimento"
+                type="date"
+                value={nascimento}
+                onChange={(e) => setNascimento(e.target.value)}
+                // Mantendo a classe do input date
+                className={`${CLASS_NAME_INPUT} [&::-webkit-calendar-picker-indicator]:invert-[0.5]`}
               />
             </div>
           </div>
 
-          <div>
-            <label htmlFor="nascimento" className={CLASS_NAME_LABEL}>
-              Data de Nascimento (Opcional)
-            </label>
-            <input
-              id="nascimento"
-              type="date"
-              value={nascimento}
-              onChange={(e) => setNascimento(e.target.value)}
-              className={`${CLASS_NAME_INPUT} [&::-webkit-calendar-picker-indicator]:invert-[0.5]`}
-            />
-          </div>
-
-          {/* Outros Contatos */}
-          <div className="pt-2 border-t border-accent-foreground">
-            <label className="block text-lg font-semibold text-secondary-foreground mb-3 mt-2">
-              Outros Contatos
-            </label>
+          {/* --- Outros Contatos --- */}
+          <div className="pt-6 border-t border-accent">
+            <h3 className="block text-lg font-semibold text-primary mb-4">
+              Contatos Adicionais (Opcional)
+            </h3>
 
             <div className="space-y-4">
               {otherContacts.map((contact, index) => (
                 <div
                   key={index}
-                  className="flex flex-col md:flex-row gap-2 items-center bg-background/10 p-3 rounded-lg border border-border/5 shadow-sm"
+                  className="flex flex-col sm:flex-row gap-3 items-center bg-indigo-50/50 p-3 rounded-lg border border-accent/70 shadow-sm"
                 >
                   <select
                     value={contact.key}
                     onChange={(e) =>
                       updateContact(index, "key", e.target.value)
                     }
-                    className="w-full md:w-1/3 p-2 border rounded-lg focus:border-accent text-sm cursor-pointer text-secondary-foreground"
+                    className="w-full sm:w-1/3 p-3 border rounded-lg focus:border-indigo-500 text-sm cursor-pointer bg-background text-primary"
                     required
                   >
                     <option value="" disabled>
@@ -229,22 +255,22 @@ export default function CreateClientPage() {
 
                   <input
                     type="text"
-                    placeholder="Valor do Contato"
+                    placeholder="Valor do Contato (ex: nome@email.com)"
                     value={contact.value}
                     onChange={(e) =>
                       updateContact(index, "value", e.target.value)
                     }
-                    className={CLASS_NAME_INPUT}
+                    className="w-full sm:flex-1 p-3 border rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-background text-primary transition duration-150"
                     required={contact.key !== null && contact.key !== ""}
                   />
 
                   <button
                     type="button"
                     onClick={() => removeContact(index)}
-                    className="flex-shrink-0 p-4 bg-destructive/30 text-destructive rounded-sm hover:bg-destructive/10 transition cursor-pointer"
+                    className="flex-shrink-0 p-3 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition duration-150"
                     aria-label="Remover Contato"
                   >
-                    <Trash />
+                    <Trash className="h-5 w-5" />
                   </button>
                 </div>
               ))}
@@ -253,27 +279,15 @@ export default function CreateClientPage() {
             <button
               type="button"
               onClick={addContact}
-              className="mt-3 flex items-center justify-center space-x-2 w-full px-4 py-2 border border-border text-accent rounded-lg hover:bg-accent/10 transition duration-150 cursor-pointer"
+              className="mt-4 flex items-center justify-center space-x-2 w-full px-4 py-3 bg-indigo-50 text-primary font-medium rounded-lg hover:bg-indigo-100 transition duration-150"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
+              <PlusCircle className="h-5 w-5" />
               <span>Adicionar Contato</span>
             </button>
           </div>
 
-          <div className="relative pt-2">
+          {/* Notas */}
+          <div className="relative pt-4 border-t border-accent">
             <label className={CLASS_NAME_LABEL}>Notas (Opcional)</label>
             <textarea
               placeholder="Notas e observações importantes sobre o cliente"
@@ -284,26 +298,57 @@ export default function CreateClientPage() {
             />
           </div>
 
+          {/* Botão de Submissão Padronizado */}
           <button
             type="submit"
             disabled={loading || nome.trim() === ""}
-            className={`w-full py-3 rounded-lg font-bold text-primary-foreground transition duration-200 shadow-lg cursor-pointer
-                ${
-                  loading || nome.trim() === ""
-                    ? "bg-primary/50 cursor-not-allowed"
-                    : "bg-primary hover:bg-primary/90 hover:shadow-xl"
-                }`}
+            className={`w-full py-3 rounded-lg font-bold text-background transition duration-200 shadow-md flex items-center justify-center space-x-2
+              ${
+                loading || nome.trim() === ""
+                  ? "bg-primary/50 cursor-not-allowed"
+                  : "bg-primary hover:bg-primary/90 transform hover:scale-[1.01]"
+              }`}
           >
-            {loading ? "Cadastrando..." : "Confirmar Cadastro"}
+            {loading ? (
+              <>
+                <svg
+                  className="animate-spin h-5 w-5 mr-3 text-background"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                <span>Cadastrando...</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle className="h-5 w-5" />
+                <span>Confirmar Cadastro</span>
+              </>
+            )}
           </button>
         </form>
 
+        {/* Mensagem de Feedback (Mantida) */}
         {message && (
           <p
-            className={`mt-4 p-3 rounded-lg text-center font-medium ${
+            className={`mt-6 p-4 rounded-lg text-center font-semibold text-sm ${
               message.startsWith("Erro")
-                ? "bg-red-100 text-red-700"
-                : "bg-green-100 text-green-700"
+                ? "bg-red-100 text-red-700 border border-red-300"
+                : "bg-green-100 text-green-700 border border-green-300"
             }`}
           >
             {message}

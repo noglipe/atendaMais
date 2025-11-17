@@ -2,6 +2,8 @@
 import { useState } from "react";
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase/supabase";
 
 export default function LoginPage() {
@@ -38,22 +40,29 @@ export default function LoginPage() {
   };
 
   // --- [NOVO] Estilos reutilizáveis do Tailwind ---
-  const labelStyle = "block text-sm font-medium leading-6 text-secondary";
+  const labelStyle = "block text-sm font-medium leading-6 text-foreground";
   const inputStyle =
-    "block w-full rounded-md border-0 py-2 px-3 text-secondary shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6";
+    "block w-full rounded-lg border bg-input py-2 px-3 text-foreground shadow-sm ring-1 ring-inset ring-border placeholder:text-muted-foreground focus:ring-2 focus:ring-inset focus:ring-ring sm:text-sm sm:leading-6 transition-all";
 
   return (
     // Container principal: centraliza tudo e dá um fundo cinza
-    <div className="dark flex min-h-screen flex-1 flex-col justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
-      {/* Card do formulário */}
-      <div className="dark w-full max-w-sm mx-auto bg-foreground shadow-lg rounded-lg p-6 sm:p-8">
-        {/* Título */}
-        <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-secondary">
-          Acessar sua conta
+    <div className="flex min-h-screen flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-8">
+        <Link href="/" className="inline-block">
+          <Image src="/logo.png" alt="Logo Atenda+" width={60} height={60} />
+        </Link>
+        <h2 className="mt-6 text-center text-3xl font-bold leading-9 tracking-tight text-primary">
+          Acesse sua conta
         </h2>
+      </div>
 
+      {/* Card do formulário */}
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* Formulário */}
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+        <form
+          className="space-y-6 bg-card p-8 shadow-2xl rounded-2xl border border-border/10"
+          onSubmit={handleLogin}
+        >
           {/* Campo de Email */}
           <div>
             <label htmlFor="email" className={labelStyle}>
@@ -76,9 +85,19 @@ export default function LoginPage() {
 
           {/* Campo de Senha */}
           <div>
-            <label htmlFor="password" className={labelStyle}>
-              Senha
-            </label>
+            <div className="flex items-center justify-between">
+              <label htmlFor="password" className={labelStyle}>
+                Senha
+              </label>
+              <div className="text-sm">
+                <Link
+                  href="/recuperar-senha" // Página de recuperação de senha
+                  className="font-semibold text-primary hover:text-primary/80 transition-colors"
+                >
+                  Esqueceu sua senha?
+                </Link>
+              </div>
+            </div>
             <div className="mt-2">
               <input
                 id="password"
@@ -96,7 +115,7 @@ export default function LoginPage() {
 
           {/* Mensagem de Erro */}
           {error && (
-            <div className="dark p-3 text-sm text-destructive rounded-lg bg-background border border-border">
+            <div className="p-3 text-sm text-destructive-foreground bg-destructive/80 rounded-lg border border-destructive">
               {error}
             </div>
           )}
@@ -106,7 +125,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading} // [NOVO] Desativa o botão durante o loading
-              className="dark flex w-full justify-center rounded-md bg-accent px-3 py-2 text-sm font-semibold leading-6 text-primary shadow-sm hover:bg-accent-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex w-full justify-center rounded-full bg-primary px-3 py-3 text-lg font-bold leading-6 text-primary-foreground shadow-lg hover:bg-primary/80 transition-all duration-300 transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Entrando..." : "Entrar"}{" "}
               {/* [NOVO] Muda o texto do botão */}
